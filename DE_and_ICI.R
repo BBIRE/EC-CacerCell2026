@@ -1,6 +1,16 @@
+```{r}
 ## =========================================================
-## RNA-seq unified pipeline
+## Endometrio RNA-seq unified pipeline (single EC group)
 ## + CIBERSORT + ICI complexes (MFI paired) + plots
+## KEY RULES IMPLEMENTED:
+## - EC tumors are ONE group everywhere
+## - Trophoblast is NOT used in immune plots/correlations/signature stats
+##   (but IS used as APC-side ONLY for MFI paired ICI scoring)
+## - Robust sample alignment (fixes colnames(mat) mismatch)
+## - Violin plots with BH-adjusted significance stars
+## - GO focus heatmap (autophagy/phagocytosis keywords)
+## - Stacked immune state barplot with IQR error bars
+## - Correlation panels: x = ICI, y = signature; BH-adjust across ICI per signature
 ## =========================================================
 
 suppressPackageStartupMessages({
@@ -59,6 +69,7 @@ cfg <- list(
   out_figs   = "results/figures",
   out_logs   = "results/logs",
 
+  exclude_groups = c("iperA","iperT"),
   ciber_p_cutoff = 0.05,
 
   padj_cutoff = 0.05,
@@ -349,7 +360,7 @@ print(table(sample_meta$MetaGroup, useNA = "ifany"))
 mfi_pairs <- make_mfi_pairs(sample_meta)
 
 ## =========================================================
-## 6) DESeq2 utilities 
+## 6) DESeq2 utilities + runs (EC unified)
 ## =========================================================
 make_dds <- function(count_mat, meta_df, group_col){
   meta2 <- meta_df %>%
@@ -647,7 +658,22 @@ if (length(files) > 0) {
 }
 
 ## =========================================================
-## 8) CIBERSORT processing 
+## 8) GO FOCUS heatmap: autophagy / phagocytosis keywords
+## =========================================================
+kw <- c("autophagy","macroautophagy","phagocyt")
+
+res_g_focus <- res_g %>%
+  mutate(pathway_lc = tolower(pathway)) %>%
+  filter(str_detect(pathway_lc, paste(kw, collapse="|"))) %>%
+  select(-pathway_lc)
+res_g_focus$leadingEdge <- NULL
+
+write.csv(res_g_focus,
+            file.path(cfg$out_tables,"GO_focus_autophagy_phagocytosis.csv"),
+            row.names=FALSE)
+
+## =========================================================
+## 9) CIBERSORT processing (remove low P-value; build aggregates)
 ## =========================================================
 drop_cols <- c("RMSE","Correlation")
 ciber2 <- ciber_filt
@@ -977,7 +1003,7 @@ ggsave(file.path(cfg$out_figs,"stacked_median_active_inactive_IQR.png"),
        p_bar_err, dpi=300, width=5, height=8, units="in")
 
 ## =========================================================
-## 14) Inactivation ratios (computed per sample)
+## 14) Inactivation ratios (computed per sample; troph excluded)
 ## =========================================================
 df_corr <- df_all %>%
   distinct(SampleID, Group_immune, Complex, sig_value_log2,
@@ -1023,7 +1049,7 @@ pos_reg_fagocitosi <- calc_gene_set_median(tpm_mat, genes_positive_reg_fagocitos
 
 phago_df <- neg_reg_fagocitosi %>%
   left_join(pos_reg_fagocitosi, by="SampleID") %>%
-  mutate(phago_ratio = median_value_neg / (median_value_pos + median_value_neg +1e-6))
+  mutate(phago_inhib_ratio = median_value_neg / (median_value_pos + median_value_neg +1e-6))
 
 
 genes_up_cd8_exhaustion <- c("PDCD1","CTLA4","HAVCR2","LAG3","TIGIT","CD244","ENTPD1",
@@ -1055,7 +1081,9 @@ write.csv(sig_per_sample, file.path(cfg$out_tables, "sig_per_sample.csv"),
 ## =========================================================
 ## 16) Violin plots: add BH-adjusted significance stars
 ## =========================================================
-
+## ---------------------------------------------------------
+## (FIX) pairwise Wilcoxon + BH adjust + stars label
+## ---------------------------------------------------------
 make_pairwise_stats <- function(df, group_col, value_col, comparisons, p_adjust="BH"){
 
   df2 <- df %>%
@@ -1115,6 +1143,10 @@ p_cd8 <- ggplot(sig_per_sample, aes(x=Group_immune, y=cd8_exhaustion, fill=Group
   scale_fill_manual(values=group_colors_immune, drop=FALSE) +
   scale_y_continuous(trans="log2") +
   theme_classic(base_size=10) +
+  labs(
+    x = NULL,
+    y = "CD8 Exhaustion"
+  ) +
   theme(axis.text.x=element_blank(),legend.position = 'none',
         axis.title.y.left = element_text('Score'),
         axis.ticks.y = element_blank(),
@@ -1127,32 +1159,81 @@ if(!is.null(st_cd8)) p_cd8 <- p_cd8 + ggpubr::stat_pvalue_manual(st_cd8, label="
                                                                  tip.length=0.01, size=4)
 
 ggsave(file.path(cfg$out_figs,"CD8_exhaustion_violin_BH.png"),
-       p_cd8, dpi=300, width=130, height=70, units="mm")
+       p_cd8, dpi=300, width=80, height=70, units="mm")
 
-st_phago <- make_pairwise_stats(sig_per_sample, "Group_immune", "phago_ratio", comparisons_immune)
-p_phago <- ggplot(sig_per_sample, aes(x=Group_immune, y=phago_ratio, fill=Group_immune)) +
-  geom_violin(trim=FALSE, alpha=0.75, color="black", linewidth=0.25) +
-  geom_boxplot(width=0.12, outlier.shape=NA, color = 'white',linewidth=0.25) +
-  geom_jitter(width=0.15, size=0.8, alpha=0.4) +
-  scale_fill_manual(values=group_colors_immune, drop=FALSE) +
-  scale_y_continuous(trans="log2") +
-  theme_classic(base_size=10) +
-  theme(axis.text.x=element_blank(),legend.position = 'none',
-        axis.title.y.left = element_text('Score'),
-        axis.ticks.y = element_blank(),
-        axis.text.y =  element_blank()) +
-  coord_cartesian(clip="off") 
+st_phago <- make_pairwise_stats(
+  sig_per_sample,
+  "G",
+  "phago_ratio",
+  comparisons_immune
+)
 
-if(!is.null(st_phago)) p_phago <- p_phago + ggpubr::stat_pvalue_manual(st_phago, label="label",
-                                                                       y.position="y.position",
-                                                                       tip.length=0.01, size=4)
+p_phago <- ggplot(
+  sig_per_sample,
+  aes(x = Group_immune, y = phago_ratio, fill = Group_immune)
+) +
+  geom_violin(
+    trim = FALSE,
+    alpha = 0.75,
+    color = "black",
+    linewidth = 0.25
+  ) +
+  geom_boxplot(
+    width = 0.12,
+    outlier.shape = NA,
+    color = "white",
+    linewidth = 0.25
+  ) +
+  geom_jitter(
+    width = 0.15,
+    size = 0.8,
+    alpha = 0.4
+  ) +
+  scale_fill_manual(
+    values = group_colors_immune,
+    drop = FALSE
+  ) +
+  scale_y_continuous(
+    trans = "log2"
+  ) +
+  labs(
+    x = NULL,
+    y = "Phagocytosis Inhibition (ratio)"
+  ) +
+  theme_classic(base_size = 10) +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 10),
+    axis.ticks.y = element_blank(),
+    axis.text.y = element_blank()
+  ) +
+  coord_cartesian(clip = "off")
 
-ggsave(file.path(cfg$out_figs,"Phagocytosis_violin_BH.png"),
-       p_phago, dpi=300, width=130, height=70, units="mm")
+if (!is.null(st_phago)) {
+  p_phago <- p_phago +
+    ggpubr::stat_pvalue_manual(
+      st_phago,
+      label = "label",
+      y.position = "y.position",
+      tip.length = 0.01,
+      size = 4
+    )
+}
+
+ggsave(
+  file.path(cfg$out_figs, "Phagocytosis_violin_BH.png"),
+  p_phago,
+  dpi = 300,
+  width = 80,
+  height = 70,
+  units = "mm"
+)
 
 ## =========================================================
 ## 17) Correlation panels: x=ICI (log2), y=signature
-## BH adjust p-values across number of ICI used per signature
+## - Keep only: CD112, CD47, TIM3, HLA-G
+## - BH adjust p-values across number of ICI used per signature
 ## =========================================================
 ici_keep <- c(
   "CD112 - CD112R",
@@ -1269,7 +1350,7 @@ make_de_heatmap <- function(dds, sample_meta, group_col="Group_tissue", outfile,
     show_column_names = FALSE
   )
 
-  png(outfile, width=2200, height=1800, res=300)
+  png(outfile, width=2200, height=3000, res=300)
   ComplexHeatmap::draw(ht)
   dev.off()
   invisible(ht)
@@ -1278,6 +1359,8 @@ make_de_heatmap <- function(dds, sample_meta, group_col="Group_tissue", outfile,
 make_de_heatmap(ddsA, sample_meta,
                 group_col="Group_tissue",
                 outfile=file.path(cfg$out_figs,"DE_heatmap_ddsA.png"),
-                top_n=100)
+                top_n=50)
 
 message("PIPELINE COMPLETED. Outputs written to: ", cfg$out_dir)
+
+```
