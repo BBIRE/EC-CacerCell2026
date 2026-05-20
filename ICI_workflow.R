@@ -658,22 +658,7 @@ if (length(files) > 0) {
 }
 
 ## =========================================================
-## 8) GO FOCUS heatmap: autophagy / phagocytosis keywords
-## =========================================================
-kw <- c("autophagy","macroautophagy","phagocyt")
-
-res_g_focus <- res_g %>%
-  mutate(pathway_lc = tolower(pathway)) %>%
-  filter(str_detect(pathway_lc, paste(kw, collapse="|"))) %>%
-  select(-pathway_lc)
-res_g_focus$leadingEdge <- NULL
-
-write.csv(res_g_focus,
-            file.path(cfg$out_tables,"GO_focus_autophagy_phagocytosis.csv"),
-            row.names=FALSE)
-
-## =========================================================
-## 9) CIBERSORT processing (remove low P-value; build aggregates)
+## 8) CIBERSORT processing (remove low P-value; build aggregates)
 ## =========================================================
 drop_cols <- c("RMSE","Correlation")
 ciber2 <- ciber_filt
@@ -702,7 +687,7 @@ ciber2$Dendritic   <- safe_sum(ciber2, DCs)
 write.csv(ciber2, file.path(cfg$out_tables, "ciber2_processed.csv"), quote = FALSE)
 
 ## =========================================================
-## 10) ICI complex scoring (MFI paired: Decidua immune; Troph APC only)
+## 9) ICI complex scoring (MFI paired: Decidua immune; Troph APC only)
 ## =========================================================
 tpm_mat <- as.matrix(tpm_filt)
 mode(tpm_mat) <- "numeric"
@@ -837,7 +822,7 @@ write.csv(ici_scores, file.path(cfg$out_tables, "ICI_complex_scores.csv"),
           row.names = FALSE, quote = FALSE)
 
 ## =========================================================
-## 11) df_all (ICI + sample_meta + CIBERSORT)
+## 10) df_all (ICI + sample_meta + CIBERSORT)
 ## =========================================================
 ciber_df <- as.data.frame(ciber2)
 ciber_df$SampleID <- rownames(ciber_df)
@@ -856,7 +841,7 @@ write.csv(df_all, file.path(cfg$out_tables, "df_all_merged.csv"),
           row.names = FALSE, quote = FALSE)
 
 ## =========================================================
-## 12) Plot ICI panel (immune view; troph excluded already)
+## 11) Plot ICI panel (immune view)
 ## =========================================================
 plot_ici_panel <- function(df, complexes, outfile, title){
 
@@ -923,7 +908,7 @@ panel <- c("LGALS9.CEACAM1 - TIM3","HLA-E - CD94","CD112 - CD112R",
 plot_ici_panel(df_all, panel, file.path(cfg$out_figs, "ICI_panel.png"), "ICI complexes")
 
 ## =========================================================
-## 13) CIBERSORT “immune state” barplot (IQR error bars)
+## 12) CIBERSORT “immune state” barplot (IQR error bars)
 ## Macrophages: polarized (M1+M2) vs not polarized (M0)
 ## =========================================================
 abund_parts <- df_all %>%
@@ -1003,7 +988,7 @@ ggsave(file.path(cfg$out_figs,"stacked_median_active_inactive_IQR.png"),
        p_bar_err, dpi=300, width=5, height=8, units="in")
 
 ## =========================================================
-## 14) Inactivation ratios (computed per sample; troph excluded)
+## 13) Inactivation ratios (computed per sample)
 ## =========================================================
 df_corr <- df_all %>%
   distinct(SampleID, Group_immune, Complex, sig_value_log2,
@@ -1025,7 +1010,7 @@ df_corr <- df_all %>%
   )
 
 ## =========================================================
-## 15) TPM signatures: Phagocytosis + CD8 exhaustion
+## 14) TPM signatures: Phagocytosis + CD8 exhaustion
 ## =========================================================
 genes_negative_reg_fagocitosi  <- c(
   "RACK1","CD300A","CNN2","CSK","CD300LF","FCGR2B",
@@ -1079,11 +1064,9 @@ write.csv(sig_per_sample, file.path(cfg$out_tables, "sig_per_sample.csv"),
           row.names=FALSE, quote=FALSE)
 
 ## =========================================================
-## 16) Violin plots: add BH-adjusted significance stars
+## 15) Violin plots: add BH-adjusted significance stars
 ## =========================================================
-## ---------------------------------------------------------
-## (FIX) pairwise Wilcoxon + BH adjust + stars label
-## ---------------------------------------------------------
+
 make_pairwise_stats <- function(df, group_col, value_col, comparisons, p_adjust="BH"){
 
   df2 <- df %>%
@@ -1231,7 +1214,7 @@ ggsave(
 )
 
 ## =========================================================
-## 17) Correlation panels: x=ICI (log2), y=signature
+## 16) Correlation panels: x=ICI (log2), y=signature
 ## - Keep only: CD112, CD47, TIM3, HLA-G
 ## - BH adjust p-values across number of ICI used per signature
 ## =========================================================
@@ -1310,7 +1293,7 @@ ggsave(file.path(cfg$out_figs, "corr_panels_ICI_vs_signatures_BH.png"),
        p_corr_panel, dpi=350, width=14, height=9, units="in")
 
 ## =========================================================
-## 18) DE heatmap (alignment fix included)
+## 17) DE heatmap 
 ## =========================================================
 make_de_heatmap <- function(dds, sample_meta, group_col="Group_tissue", outfile, top_n=100){
 
