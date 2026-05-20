@@ -229,3 +229,178 @@ Displays:
 ### 5. Macroscopic Biological Interpretation
 
 Integrates network topology and pathway enrichment into a single systems-level visualization, revealing how coordinated transcriptional modules connect to specific biological functions and how these functions are reorganized across conditions.
+
+
+## `Spatial_ICI.py`
+
+### 1. Purpose
+
+This Python script generates publication-ready spatial plots for two immune-inhibitory axes:
+
+1. **CD47/SIRPA macrophage axis**
+2. **NECTIN2/TIGIT lymphoid axis**
+
+It processes one or more `.h5ad` spatial transcriptomics objects and produces per-sample tables, summary plots, spatial zoom-ins, and signature-based comparisons.
+
+### 2. Input Data
+
+#### 2.1 Spatial transcriptomics object
+
+Each input file must be an `.h5ad` object containing:
+
+* gene expression matrix
+* spatial coordinates in `adata.obsm["spatial"]` or equivalent `obs` columns
+* cell-type annotations in `adata.obs[label_col]`
+
+#### 2.2 Required genes
+
+The script specifically evaluates:
+
+* `EPCAM`
+* `CD47`
+* `SIRPA`
+* `NECTIN2`
+* `TIGIT`
+
+#### 2.3 Cell labels
+
+The expected cell types are:
+
+* Endometrial cells
+* Macrophages
+* NK cells
+* T cells
+
+### 3. Required Packages
+
+`scanpy`, `numpy`, `pandas`, `scipy`, `sklearn`, `matplotlib`
+
+### 4. Main Analysis Steps
+
+#### Step 1 — Load sample
+
+Optional filtering removes cells with fewer than a minimum number of transcripts.
+
+#### Step 2 — Extract spatial coordinates
+
+These coordinates are used to build local spatial neighborhoods.
+
+#### Step 3 — Extract gene expression and positivity calls
+
+The function `add_expression_and_signature_calls()` extracts expression for:
+
+* `EPCAM`
+* `CD47`
+* `SIRPA`
+* `NECTIN2`
+* `TIGIT`
+
+A cell is considered positive if expression is greater than the chosen transcript threshold.
+
+#### Step 4 — Score macrophage inhibitory signature
+
+This estimates the inhibitory or anti-phagocytic state of macrophages.
+
+#### Step 5 — Build spatial neighborhood graph
+
+The function `build_spatial_graph()` builds a k-nearest-neighbor graph from spatial coordinates.
+
+This graph is used to determine whether immune cells are spatially close to ligand-positive endometrial cells.
+
+#### Step 6 — Define cell masks
+
+The function `build_cell_masks()` identifies:
+
+* endometrial cells
+* macrophages
+* NK cells
+* T cells
+
+These masks drive all downstream cell-type-specific analyses.
+
+#### Step 7 — CD47/SIRPA analysis
+
+The script quantifies:
+
+* EPCAM/CD47 status in endometrial cells
+* SIRPA status in macrophages
+* macrophages spatially exposed to CD47-positive endometrial cells
+* inhibitory macrophage signature across CD47/SIRPA groups
+
+Main output groups:
+
+```text
+CD47+ / SIRPA+
+CD47+ / SIRPA-
+CD47- / SIRPA+
+CD47- / SIRPA-
+```
+
+#### Step 8 — NECTIN2/TIGIT analysis
+
+The script quantifies:
+
+* EPCAM/NECTIN2 status in endometrial cells
+* TIGIT status in NK cells
+* TIGIT status in T cells
+* NK/T cells spatially exposed to NECTIN2-positive endometrial cells
+
+Main output groups:
+
+```text
+TIGIT+ / NECTIN2+
+TIGIT+ / NECTIN2-
+TIGIT- / NECTIN2+
+TIGIT- / NECTIN2-
+```
+
+#### Step 9 — Transcript-depth trajectory analysis
+
+The script compares total transcript counts across marker-defined groups.
+
+This is used as a quality-aware readout to verify whether observed positivity patterns are associated with transcript depth or represent biologically meaningful spatial states.
+
+#### Step 10 — Spatial zoom-ins
+
+The function `plot_cd47_sirpa_high_signature_zoom()` identifies macrophages that are:
+
+* `SIRPA+`
+* spatially exposed to `CD47+` endometrial cells
+* high-scoring for the negative phagocytosis signature
+
+It then generates spatial crop plots centered on these macrophages.
+
+### 5. Output Files
+
+#### Tables
+
+The `files/` folder contains CSV tables such as:
+
+* signature genes present
+* cell-type composition
+* endometrial EPCAM/CD47 table
+* endometrial EPCAM/NECTIN2 table
+* macrophage SIRPA table
+* macrophage signature table
+* NK TIGIT table
+* T-cell TIGIT table
+* transcript-depth tables
+
+#### Figures
+
+The `plots/` folder contains:
+
+* CD47/SIRPA publication panel
+* NECTIN2/TIGIT publication panel
+* CD47/SIRPA signature violin plot
+* CD47/SIRPA high-signature spatial zoom-ins
+
+### 6. Macroscopic Biological Interpretation
+
+The pipeline tests whether immune-inhibitory ligand–receptor axes are spatially organized in endometrial tissue.
+
+The **CD47/SIRPA axis** evaluates whether endometrial cells expressing CD47 are positioned near SIRPA-positive macrophages and whether those macrophages show increased anti-phagocytic/inhibitory transcriptional programs.
+
+The **NECTIN2/TIGIT axis** evaluates whether NECTIN2-positive endometrial cells are spatially associated with TIGIT-positive NK or T cells, suggesting local lymphoid inhibitory signaling.
+
+Overall, the script provides a spatial framework to identify immune-tolerance niches and compare how these niches may differ between physiological invasion and pathological tumor-associated immune evasion.
