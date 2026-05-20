@@ -1,7 +1,11 @@
 # EC-CacerCell2026
 Code repository for Ferretti et al. 2026 Cancer Cell
+EC-CacerCell2026
+├── network_rewire_context.R
+├── network_analysis_core.R
+└── plot_module_metagraph_circlize_hallmark.R
 
-## network_analysis.R - Differential Co-Expression Network Analysis Pipeline
+## network_analysis_core.R - Differential Co-Expression Network Analysis Pipeline
 
 This pipeline implements a complete workflow to reconstruct, analyze, and compare gene co-expression networks across three biological conditions:
 - Healthy endometrium
