@@ -2,7 +2,7 @@
 # INPUTS EXPECTED
 # =========================================================
 
-plot_title <- paste(group, "Module Metagraph", sep = " ") 
+plot_title <- paste(group, "Module Metagraph", sep = " ")
 min_edge_weight_to_plot <- 1
 label_cex <- 0.9
 grid_border_col <- "white"
