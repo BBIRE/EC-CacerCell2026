@@ -1,4 +1,5 @@
-# Network Analysis Scripts — Synthetic Description
+# Ferretti, Betti et. al 2026 
+# Code repository
 
 ---
 
@@ -148,50 +149,6 @@ Defines transitions such as:
 ### 5. Macroscopic Biological Interpretation
 
 Adds systems-level context to rewired genes by identifying whether they migrate between weak and highly prioritized modules, highlighting candidate regulatory switches associated with disease or physiological adaptation.
-
----
-
-# `plot_module_metagraph_ggraph.R`
-
-### 1. Input Data
-
-* Module assignments
-* Module ranking tables
-* Original `igraph` object
-
----
-
-### 2. Required Packages
-
-`igraph`, `ggraph`, `ggplot2`, `dplyr`
-
----
-
-### 3. Analysis Steps and Functions
-
-#### Step 1 — Build Module Meta-Graph
-
-Aggregates gene-level edges into module–module connections.
-
-#### Step 2 — Annotate Modules
-
-Uses module labels and ranking scores.
-
-#### Step 3 — Visualization
-
-Plots modules as nodes and inter-module connectivity as weighted edges.
-
----
-
-### 4. Output
-
-* Publication-quality module metagraph figures
-
----
-
-### 5. Macroscopic Biological Interpretation
-
-Provides a high-level representation of the network, showing how major transcriptional programs interact and which modules occupy central positions within the global regulatory architecture.
 
 ---
 
