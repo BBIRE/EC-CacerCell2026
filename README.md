@@ -2,6 +2,64 @@
 # Code repository
 
 ---
+# TIME_analysis.R
+
+## 1. Input Data
+
+### 1.1 CIBERSORTx Fraction Matrix
+
+* CibersortX tsv files for run in relativ and absolute mode
+
+### 1.2 Sample Metadata
+
+* Clinical and biological annotation table used to define comparison groups.
+
+### 1.3 IHC quantifications
+* Infiltration scores from for digital pathology IHC staining
+
+## 2. Required Packages
+
+`dplyr`, `tidyr`, `readr`, `stringr`, `ggplot2`, `patchwork`, `vegan`
+
+## 3. Analysis Steps and Functions
+
+### Step 1 — Input validation and metadata loading
+
+The script checks that all required input files are available and loads sample metadata. Metadata are standardized to ensure that sample IDs and biological groups can be matched to CIBERSORTx outputs.
+
+### Step 2 — CIBERSORTx fraction processing
+
+The CIBERSORTx fraction table is filtered by deconvolution p-value. Technical columns such as RMSE and correlation are removed. LM22 immune cell subsets are then collapsed into broader immune classes:
+
+- B cells
+- CD4 T cells
+- CD8 T cells
+- Macrophages
+- Dendritic cells
+- Mast cells
+- NK cells
+
+### Step 3 — Group-level immune composition
+
+The script computes mean immune cell abundance for each biological group and generates a stacked relative composition barplot.
+
+### Step 4 — Absolute immune score analysis
+
+The optional absolute score file is processed to estimate global immune infiltration per sample. The script then generates a combined figure with:
+
+### Step 5 — PERMANOVA analysis and dispersion control
+
+The aggregated immune composition matrix is tested using Bray-Curtis PERMANOVA. The global test evaluates whether immune composition differs across all groups. Pairwise PERMANOVA then tests each group comparison separately, with Benjamini-Hochberg FDR correction. The script tests whether pairwise PERMANOVA differences could be driven by unequal within-group dispersion rather than shifts in immune composition centroids.
+
+## 4. Output Files
+
+* aggregated metrics per class
+* permanova pairwise statistics
+
+## 5. Macroscopic Biological Interpretation
+
+This workflow evaluates how immune infiltrate composition changes across healthy endometrium, decidua, EC-adjacent healthy tissue, and endometrial cancer.
+The relative composition plot describes how major immune cell families are redistributed across groups. The absolute score estimates the overall immune infiltration burden. PERMANOVA evaluates whether the global immune landscape differs between biological states, while pairwise PERMANOVA identifies which contrasts drive this separation. 
 
 ## `network_analysis_core.R`
 
@@ -81,18 +139,12 @@ Quantifies:
 
 Compares topology and module structure across conditions.
 
----
-
 ### 4. Output
 
 * Topology tables
 * Module ranking tables
 * Rewiring metrics
 * Enrichment results
-* Comparative figures
-* Excel summaries
-
----
 
 ### 5. Macroscopic Biological Interpretation
 
@@ -107,13 +159,9 @@ This script reconstructs transcriptional regulatory architectures and quantifies
 * Top rewired gene tables
 * Module ranking tables from case and control networks
 
----
-
 ### 2. Required Packages
 
 `dplyr`, `readr`, `readxl`, `stringr`
-
----
 
 ### 3. Analysis Steps and Functions
 
@@ -137,14 +185,10 @@ Defines transitions such as:
 * Stable core
 * Module switching
 
----
-
 ### 4. Output
 
 * Contextualized rewired gene tables
 * Tier transition summaries
-
----
 
 ### 5. Macroscopic Biological Interpretation
 
@@ -160,13 +204,9 @@ Adds systems-level context to rewired genes by identifying whether they migrate 
 * Hallmark enrichment results
 * Module meta-graph
 
----
-
 ### 2. Required Packages
 
 `circlize`, `igraph`, `dplyr`, `ComplexHeatmap`
-
----
 
 ### 3. Analysis Steps and Functions
 
@@ -182,17 +222,9 @@ Displays:
 * Hallmark annotations as outer bars
 * Inter-module links
 
-#### Step 3 — Export
-
-Produces high-resolution circos figures.
-
----
-
 ### 4. Output
 
 * Circular module metagraphs with functional annotations
-
----
 
 ### 5. Macroscopic Biological Interpretation
 
