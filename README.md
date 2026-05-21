@@ -197,7 +197,7 @@ Displays:
 * Hallmark annotations as outer bars
 * Inter-module links
 
-### 4. Outputhttps://github.com/BBIRE/EC-CacerCell2026/blob/main/README.md
+### 4. Output
 
 * Circular module metagraphs with functional annotations
 
