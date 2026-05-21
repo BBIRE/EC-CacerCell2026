@@ -78,8 +78,6 @@ The relative composition plot describes how major immune cell families are redis
 
 * Condition-specific and differential `igraph` objects stored as `.rds` files.
 
----
-
 ### 2. Required Packages
 
 **Data Manipulation:** `dplyr`, `tibble`, `stringr`, `purrr`, `tidyr`
@@ -89,7 +87,6 @@ The relative composition plot describes how major immune cell families are redis
 **Visualization:** `ggplot2`, `ComplexHeatmap`
 **Export:** `openxlsx`
 
----
 
 ### 3. Analysis Steps and Functions
 
@@ -97,11 +94,36 @@ The relative composition plot describes how major immune cell families are redis
 
 Loads expression matrices, metadata, and network objects; standardizes identifiers and verifies consistency.
 
-#### Step 2 — Differential Co-Expression Graph Construction
 
-Builds correlation-based networks and differential rewiring graphs using predefined statistical thresholds.
 
-#### Step 3 — Single Network Topological Analysis
+* Topology tables
+* Module ranking tables
+* Rewiring metrics
+* Enrichment results
+
+### 5. Macroscopic Biological Interpretation
+
+This script reconstructs transcriptional regulatory architectures and quantifies how gene–gene coordination is reorganized across biological conditions. It identifies preserved and disrupted modules, emergent hubs, and condition-specific regulatory programs, enabling a systems-level comparison between healthy endometrium, decidua, and endometrial cancer.
+
+---
+
+# `network_metrics.R`
+
+### 1. Input Data
+
+* Graph objects
+
+### 2. Required Packages
+
+`dplyr`, `readr`, `readxl`, `stringr`
+
+### 3. Analysis Steps and Functions
+
+#### Step 1 — Load Rewired Genes
+
+Reads genes ranked by rewiring magnitude.
+
+#### Step 2 — Single Network Topological Analysis
 
 Computes:
 
@@ -111,7 +133,7 @@ Computes:
 * Louvain communities
 * Global topology metrics
 
-#### Step 4 — Module Prioritization
+#### Step 3 — Module Prioritization
 
 Ranks modules using a composite score based on:
 
@@ -129,9 +151,6 @@ Performs GO and Hallmark enrichment to assign biological meaning to each module.
 #### Step 6 — Differential Rewiring Analysis
 
 Quantifies:
-
-* Edge overlap (Jaccard)
-* Hub preservation
 * Gain/loss balance
 * Positive/negative rewiring fractions
 
@@ -141,54 +160,10 @@ Compares topology and module structure across conditions.
 
 ### 4. Output
 
-* Topology tables
-* Module ranking tables
-* Rewiring metrics
-* Enrichment results
-
-### 5. Macroscopic Biological Interpretation
-
-This script reconstructs transcriptional regulatory architectures and quantifies how gene–gene coordination is reorganized across biological conditions. It identifies preserved and disrupted modules, emergent hubs, and condition-specific regulatory programs, enabling a systems-level comparison between healthy endometrium, decidua, and endometrial cancer.
-
----
-
-# `network_rewire_context.R`
-
-### 1. Input Data
-
-* Top rewired gene tables
-* Module ranking tables from case and control networks
-
-### 2. Required Packages
-
-`dplyr`, `readr`, `readxl`, `stringr`
-
-### 3. Analysis Steps and Functions
-
-#### Step 1 — Load Rewired Genes
-
-Reads genes ranked by rewiring magnitude.
-
-#### Step 2 — Join Module Context
-
-Associates each gene with:
-
-* Case module
-* Control module
-* Module scores and ranks
-
-#### Step 3 — Contextual Annotation
-
-Defines transitions such as:
-
-* Low → High priority
-* Stable core
-* Module switching
-
-### 4. Output
-
-* Contextualized rewired gene tables
+* Rewired gene tables
 * Tier transition summaries
+* Modules annotation
+* Modules metrics
 
 ### 5. Macroscopic Biological Interpretation
 
@@ -230,7 +205,7 @@ Displays:
 
 Integrates network topology and pathway enrichment into a single systems-level visualization, revealing how coordinated transcriptional modules connect to specific biological functions and how these functions are reorganized across conditions.
 
-
+---
 ## `Spatial_ICI.py`
 
 ### 1. Purpose
