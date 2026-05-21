@@ -8,8 +8,8 @@ suppressPackageStartupMessages({
 # ----------------------------
 # Inputs (edit paths)
 # ----------------------------
-gene_file   <- "network/network_06/DCN_rewire_explore/De_vs_Healthy/top_rewired_genes_modules_k_neighbors.csv"    # Gene, Module_case, Module_ctrl, k_case, k_ctrl, log2_k_ratio, ..., RewireScore, DegreeDiff
-module_xlsx <- "network/network_06/DCN_outputs/Healthy/Healthy_results.xlsx" # Module, N, ..., Score, ModuleType, PassSize (as in your example)
+gene_file   <- "top_rewired_genes_modules_k_neighbors.csv"   
+module_xlsx <- "results.xlsx" 
 module_sheet <- "Module_Ranking"
 
 # ----------------------------
