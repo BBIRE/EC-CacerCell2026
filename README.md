@@ -56,7 +56,7 @@ The aggregated immune composition matrix is tested using Bray-Curtis PERMANOVA. 
 * aggregated metrics per class
 * permanova pairwise statistics
 
-
+---
 ## `network_analysis_core.R`
 
 ### 1. Input Data
@@ -192,6 +192,8 @@ Displays:
 Integrates network topology and pathway enrichment into a single systems-level visualization, revealing how coordinated transcriptional modules connect to specific biological functions and how these functions are reorganized across conditions.
 
 ---
+# `spatial_deconvolution.py`
+
 ### 1. Input Data
 * Spatial .h5ad object containing: gene expression matrix, spatial coordinates, spot metadata
 * Single-Cell RNA-seq Reference: Single-cell .h5ad object used as transcriptional reference for deconvolution. Requires annotated cell-type labels in obs.
@@ -220,7 +222,7 @@ The pipeline generates:
 * region composition summaries
 * fully annotated .h5ad objects
 
--- 
+---
 
 ## `Spatial_ICI.py`
 
