@@ -56,10 +56,6 @@ The aggregated immune composition matrix is tested using Bray-Curtis PERMANOVA. 
 * aggregated metrics per class
 * permanova pairwise statistics
 
-## 5. Macroscopic Biological Interpretation
-
-This workflow evaluates how immune infiltrate composition changes across healthy endometrium, decidua, EC-adjacent healthy tissue, and endometrial cancer.
-The relative composition plot describes how major immune cell families are redistributed across groups. The absolute score estimates the overall immune infiltration burden. PERMANOVA evaluates whether the global immune landscape differs between biological states, while pairwise PERMANOVA identifies which contrasts drive this separation. 
 
 ## `network_analysis_core.R`
 
@@ -94,16 +90,10 @@ The relative composition plot describes how major immune cell families are redis
 
 Loads expression matrices, metadata, and network objects; standardizes identifiers and verifies consistency.
 
-
-
 * Topology tables
 * Module ranking tables
 * Rewiring metrics
 * Enrichment results
-
-### 5. Macroscopic Biological Interpretation
-
-This script reconstructs transcriptional regulatory architectures and quantifies how gene–gene coordination is reorganized across biological conditions. It identifies preserved and disrupted modules, emergent hubs, and condition-specific regulatory programs, enabling a systems-level comparison between healthy endometrium, decidua, and endometrial cancer.
 
 ---
 
@@ -164,10 +154,6 @@ Compares topology and module structure across conditions.
 * Tier transition summaries
 * Modules annotation
 * Modules metrics
-
-### 5. Macroscopic Biological Interpretation
-
-Adds systems-level context to rewired genes by identifying whether they migrate between weak and highly prioritized modules, highlighting candidate regulatory switches associated with disease or physiological adaptation.
 
 ---
 
@@ -233,11 +219,6 @@ The pipeline generates:
 * Leiden spatial regions
 * region composition summaries
 * fully annotated .h5ad objects
-
-### 5. Macroscopic Biological Interpretation
-
-This pipeline reconstructs the cellular architecture of spatial transcriptomics samples through reference-based deconvolution and spatial community detection.
-By combining transcriptional deconvolution with spatial graph partitioning, the framework captures both cellular abundance and tissue-level structural organization, enabling systems-level investigation of tumor microenvironments, decidual remodeling, or inflammatory tissue states.
 
 -- 
 
@@ -405,12 +386,3 @@ The `plots/` folder contains:
 * CD47/SIRPA signature violin plot
 * CD47/SIRPA high-signature spatial zoom-ins
 
-### 6. Macroscopic Biological Interpretation
-
-The pipeline tests whether immune-inhibitory ligand–receptor axes are spatially organized in endometrial tissue.
-
-The **CD47/SIRPA axis** evaluates whether endometrial cells expressing CD47 are positioned near SIRPA-positive macrophages and whether those macrophages show increased anti-phagocytic/inhibitory transcriptional programs.
-
-The **NECTIN2/TIGIT axis** evaluates whether NECTIN2-positive endometrial cells are spatially associated with TIGIT-positive NK or T cells, suggesting local lymphoid inhibitory signaling.
-
-Overall, the script provides a spatial framework to identify immune-tolerance niches and compare how these niches may differ between physiological invasion and pathological tumor-associated immune evasion.
