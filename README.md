@@ -197,7 +197,7 @@ Displays:
 * Hallmark annotations as outer bars
 * Inter-module links
 
-### 4. Output
+### 4. Outputhttps://github.com/BBIRE/EC-CacerCell2026/blob/main/README.md
 
 * Circular module metagraphs with functional annotations
 
@@ -206,6 +206,41 @@ Displays:
 Integrates network topology and pathway enrichment into a single systems-level visualization, revealing how coordinated transcriptional modules connect to specific biological functions and how these functions are reorganized across conditions.
 
 ---
+### 1. Input Data
+* Spatial .h5ad object containing: gene expression matrix, spatial coordinates, spot metadata
+* Single-Cell RNA-seq Reference: Single-cell .h5ad object used as transcriptional reference for deconvolution. Requires annotated cell-type labels in obs.
+### 2. Required Packages
+numpy, pandas, scipy, scanpy, anndata, squidpy, scipy.optimize.nnls, joblib, h5py, pathlib
+
+### 3. Analysis Steps and Functions
+* Step 1 — Data Import and Validation
+* Step 2 - Aligns gene identifiers between spatial and single-cell datasets.
+* Step 3 — Single-Cell Reference Filtering (min_cells_per_celltype = 20)
+* Step 4 — Marker Gene Selection (n_top_markers = 50, max_cells_per_type = 5000
+* Step 5 — NNLS Spatial Deconvolution
+* Step 6 — Cell-Type Aggregation (Endometrial, Stromal, Vascular, T cell, NK, Macrophage, Myeloid, DC, B cell)
+* Step 7 — Spatial Region Detection (resolution = 0.6, spatial_n_neigh = 8, n_pcs = 50)
+* Step 8 — Region Annotation
+* Step 9 — Robust H5AD Export (Exports sanitized .h5ad objects)
+
+### 4. Output
+
+The pipeline generates:
+
+* spot-level cell-type fractions
+* aggregated cell-type fractions
+* dominant cell-type annotations
+* Leiden spatial regions
+* region composition summaries
+* fully annotated .h5ad objects
+
+### 5. Macroscopic Biological Interpretation
+
+This pipeline reconstructs the cellular architecture of spatial transcriptomics samples through reference-based deconvolution and spatial community detection.
+By combining transcriptional deconvolution with spatial graph partitioning, the framework captures both cellular abundance and tissue-level structural organization, enabling systems-level investigation of tumor microenvironments, decidual remodeling, or inflammatory tissue states.
+
+-- 
+
 ## `Spatial_ICI.py`
 
 ### 1. Purpose
